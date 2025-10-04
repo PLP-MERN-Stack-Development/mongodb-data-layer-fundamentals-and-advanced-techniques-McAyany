@@ -3,8 +3,30 @@
 // Import MongoDB client
 const { MongoClient } = require('mongodb');
 
-// Connection URI (replace with your MongoDB connection string if using Atlas)
-const uri = 'mongodb://localhost:27017';
+// Connection URI (replace with your MongoDB Atlas connection string)
+require('dotenv').config();
+const uri = process.env.MONGO_URI; // MongoDB Atlas connection string from .env
+
+const client = new MongoClient(uri);
+
+async function run() {
+  try {
+    await client.connect();
+    const db = client.db("library");
+    const books = db.collection("books");
+
+    const result = await books.insertMany([
+      { title: "Book 1", author: "Author A" },
+      { title: "Book 2", author: "Author B" }
+    ]);
+
+    console.log(`${result.insertedCount} books inserted`);
+  } finally {
+    await client.close();
+  }
+}
+
+run().catch(console.dir);
 
 // Database and collection names
 const dbName = 'plp_bookstore';
@@ -195,4 +217,4 @@ insertBooks().catch(console.error);
  *
  * 5. Find in-stock books:
  *    db.books.find({ in_stock: true })
- */ 
+ */
